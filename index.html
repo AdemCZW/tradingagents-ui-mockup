@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="google" content="notranslate">
+<title>TradingAgents 介面示範（示範資料，非投資建議）</title>
+<style>
+:root{
+  --bg:#0a0d12; --bg2:#0f141b; --panel:#121821; --panel2:#171e29; --line:#243040; --line2:#2f3d52;
+  --txt:#e4eaf2; --mute:#97a3b5; --dim:#6b778a;
+  --cyan:#5ad8f0; --green:#4ade80; --amber:#fbbf24; --red:#f87171; --violet:#a78bfa; --pink:#f472b6; --blue:#60a5fa;
+  --r1:6px; --r2:10px; --r3:16px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+  --shadow:0 8px 30px rgba(0,0,0,.45);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"PingFang TC","Noto Sans TC","Microsoft JhengHei",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#122033 0,transparent 60%),radial-gradient(900px 500px at -10% 10%,#14202a 0,transparent 55%),var(--bg);
+  color:var(--txt);font:14px/1.6 var(--sans);min-height:100vh;-webkit-text-size-adjust:100%}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:4px}
+button{font:inherit;color:inherit;cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.skip{position:absolute;left:-999px;top:0;background:var(--cyan);color:#000;padding:8px 12px;z-index:100}
+.skip:focus{left:8px;top:8px}
+
+/* header */
+.top{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(10,13,18,.82);border-bottom:1px solid var(--line)}
+.top-in{max-width:1480px;margin:0 auto;padding:var(--s3) var(--s4);display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;letter-spacing:.02em}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:grid;place-items:center;color:#06121a;font-size:15px;box-shadow:0 0 18px rgba(90,216,240,.35)}
+.brand small{color:var(--mute);font-weight:400;font-size:11px;display:block;letter-spacing:0}
+.tabs{display:flex;gap:6px;margin-left:var(--s4);flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--mute);transition:.18s}
+.tab:hover{color:var(--txt);border-color:var(--line2)}
+.tab[aria-selected=true]{color:#05131a;background:var(--cyan);border-color:var(--cyan);font-weight:600;box-shadow:0 0 16px rgba(90,216,240,.3)}
+.tab b{font-family:var(--mono);margin-right:6px;opacity:.8}
+.demo{margin-left:auto;color:var(--amber);border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.08);padding:4px 10px;border-radius:999px;font-size:12px}
+
+main{max-width:1480px;margin:0 auto;padding:var(--s5) var(--s4) 64px}
+.view{display:none}.view.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* cards / panels */
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow);position:relative}
+.panel>.pt{position:absolute;top:-10px;left:16px;background:var(--bg);padding:0 10px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;border-radius:4px}
+.pt.c{color:var(--cyan)}.pt.v{color:var(--violet)}.pt.g{color:var(--green)}
+.panel.c{border-color:rgba(90,216,240,.35)}.panel.v{border-color:rgba(167,139,250,.38)}.panel.g{border-color:rgba(74,222,128,.35)}
+h1,h2,h3{margin:0;line-height:1.3}
+.btn{border:1px solid var(--line2);background:var(--panel2);border-radius:var(--r1);padding:8px 14px;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.pri{background:linear-gradient(135deg,var(--cyan),#38bdf8);color:#04121a;border-color:transparent;font-weight:700}
+.btn.pri:hover{color:#04121a;box-shadow:0 0 22px rgba(90,216,240,.45)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ===== V1 setup ===== */
+.hero{text-align:center;padding:var(--s5) 0 var(--s5)}
+.ascii{font-family:var(--mono);font-size:clamp(18px,3.4vw,34px);font-weight:800;letter-spacing:.08em;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);margin:6px 0 0}
+.setup{display:grid;grid-template-columns:240px 1fr;gap:var(--s5);align-items:start}
+.stepper{list-style:none;margin:0;padding:var(--s4);position:sticky;top:90px}
+.stepper li{display:flex;gap:12px;align-items:center;padding:8px 0;position:relative;color:var(--mute)}
+.stepper li:not(:last-child)::after{content:"";position:absolute;left:13px;top:36px;bottom:-8px;width:2px;background:var(--line)}
+.stepper .dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line2);display:grid;place-items:center;font:600 12px var(--mono);background:var(--bg2);flex:none;transition:.2s}
+.stepper li.done{color:var(--txt)}.stepper li.done .dot{background:var(--green);border-color:var(--green);color:#04140a}
+.stepper li.done::after{background:var(--green)!important}
+.stepper li small{display:block;color:var(--dim);font-size:11px}
+.steps{display:grid;gap:var(--s4)}
+.card{padding:var(--s5);}
+.card h3{font-size:15px;display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.card h3 .n{font:700 11px var(--mono);color:#04121a;background:var(--cyan);border-radius:6px;padding:2px 7px}
+.card .hint{color:var(--mute);font-size:12.5px;margin:0 0 var(--s4)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+label.f{display:block;font-size:12px;color:var(--mute);margin-bottom:6px}
+input[type=text],input[type=date],select{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r1);color:var(--txt);padding:10px 12px;font:15px var(--mono);color-scheme:dark}
+input:focus-visible,select:focus-visible{outline:2px solid var(--cyan)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid var(--line2);background:transparent;border-radius:999px;padding:3px 12px;font:12px var(--mono);color:var(--mute)}
+.chip:hover{color:var(--cyan);border-color:var(--cyan)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.opt{position:relative;border:1px solid var(--line2);background:var(--bg2);border-radius:var(--r2);padding:12px 14px 12px 44px;cursor:pointer;transition:.15s;display:block}
+.opt:hover{border-color:var(--dim)}
+.opt input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.opt::before{content:"";position:absolute;left:14px;top:14px;width:18px;height:18px;border:2px solid var(--line2);border-radius:5px;transition:.15s}
+.opt.radio::before{border-radius:50%}
+.opt:has(input:checked){border-color:var(--cyan);background:rgba(90,216,240,.07);box-shadow:inset 0 0 0 1px rgba(90,216,240,.25)}
+.opt:has(input:checked)::before{background:var(--cyan);border-color:var(--cyan);box-shadow:inset 0 0 0 3px var(--bg2)}
+.opt:has(input:focus-visible){outline:2px solid var(--cyan);outline-offset:2px}
+.opt b{display:block;font-size:13.5px}.opt span{color:var(--mute);font-size:12px}
+.depth{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.depth .opt{padding-left:44px}
+.bars{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle}.bars i{width:4px;height:10px;background:var(--line2);border-radius:1px;display:block}.bars i.on{background:var(--cyan)}
+.summary{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap;justify-content:space-between;padding:var(--s4) var(--s5)}
+.summary code{font-family:var(--mono);color:var(--cyan);font-size:12.5px}
+.summary .btn{padding:12px 26px;font-size:15px}
+
+/* ===== V2 dashboard ===== */
+.ctl{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap;margin-bottom:var(--s5)}
+.ctl .grow{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:var(--r1);overflow:hidden}
+.seg button{background:transparent;border:0;padding:7px 12px;color:var(--mute);font:12px var(--mono)}
+.seg button[aria-pressed=true]{background:var(--cyan);color:#04121a;font-weight:700}
+.runstate{font:12px var(--mono);color:var(--mute);display:flex;align-items:center;gap:8px}
+.live{width:8px;height:8px;border-radius:50%;background:var(--dim);display:inline-block}
+.runstate.run .live{background:var(--green)}
+.runstate.run .live i{display:block;width:100%;height:100%;border-radius:50%;background:var(--green);animation:ping 1.2s infinite}
+@keyframes ping{0%{transform:scale(1);opacity:.8}100%{transform:scale(3);opacity:0}}
+.dash{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--s5);margin-bottom:var(--s5)}
+.dash .panel{padding:var(--s5) var(--s4) var(--s4)}
+.prog{max-height:430px;overflow:auto}
+.team{padding:6px 0 10px;border-bottom:1px dashed var(--line)}
+.team:last-child{border:0}
+.team h4{margin:0 0 4px;font:600 11px var(--mono);letter-spacing:.1em;color:var(--cyan);text-transform:uppercase;display:flex;justify-content:space-between}
+.team h4 span{color:var(--dim)}
+.ag{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:var(--r1);padding:6px 8px;transition:.2s}
+.ag:hover:not([disabled]){background:rgba(255,255,255,.04)}
+.ag[disabled]{cursor:default}
+.ag.sel{border-color:var(--line2);background:rgba(90,216,240,.06)}
+.ag .ic{width:20px;height:20px;display:grid;place-items:center}
+.ag .nm{font-size:13.5px;color:var(--dim);transition:.3s}
+.ag .st{font:11px var(--mono);color:var(--dim);padding:1px 8px;border-radius:999px;border:1px solid var(--line)}
+.ag[data-s=in_progress] .nm{color:var(--txt)}
+.ag[data-s=in_progress] .st{color:var(--amber);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.08)}
+.ag[data-s=in_progress]{background:linear-gradient(90deg,rgba(251,191,36,.09),transparent)}
+.ag[data-s=completed] .nm{color:var(--txt)}
+.ag[data-s=completed] .st{color:var(--green);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.07)}
+.ic svg{width:18px;height:18px}
+.ic .pend{width:8px;height:8px;border-radius:50%;border:2px solid var(--line2)}
+.ic .spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(251,191,36,.25);border-top-color:var(--amber);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ic .ok{stroke:var(--green);stroke-width:3;fill:none;stroke-dasharray:24;stroke-dashoffset:24;animation:draw .45s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.ic .okbg{width:18px;height:18px;border-radius:50%;background:rgba(74,222,128,.15);display:grid;place-items:center;animation:pop .35s}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.msgs{height:430px;overflow:auto;padding-right:4px}
+.mrow{display:grid;grid-template-columns:70px 92px 1fr;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line);animation:slide .4s ease;font-size:12.5px}
+@keyframes slide{from{opacity:0;transform:translateX(24px);background:rgba(90,216,240,.14)}to{opacity:1;transform:none}}
+.mrow time{font:12px var(--mono);color:var(--cyan)}
+.tag{font:11px var(--mono);height:fit-content;text-align:center;border-radius:4px;padding:1px 6px;width:fit-content}
+.tag.tool{color:var(--green);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3)}
+.tag.rs{color:var(--violet);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3)}
+.mrow .ct{font-family:var(--mono);word-break:break-word;color:#cfd8e6}
+.mrow .ct em{color:var(--amber);font-style:normal}
+.mrow.rsn .ct{font-family:var(--sans);color:var(--mute)}
+.empty{color:var(--dim);text-align:center;padding:60px 0;font-size:13px}
+.report{padding:var(--s6) var(--s5) var(--s5);margin-bottom:var(--s5)}
+.rhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:var(--s3)}
+.rhead h3{color:var(--green);font-size:16px}
+.md h4{margin:18px 0 6px;font-size:14px;color:var(--cyan)}
+.md h4 span{font-family:var(--mono);color:var(--amber);margin-right:8px}
+.md p{margin:6px 0;color:#c9d3e1}
+.md ul{margin:6px 0;padding-left:0;list-style:none}
+.md li{padding-left:18px;position:relative;margin:4px 0;color:#c9d3e1}
+.md li::before{content:"";position:absolute;left:4px;top:.65em;width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.md strong{color:var(--txt)}
+.md table{border-collapse:collapse;margin:10px 0;font-size:13px;width:100%;max-width:560px}
+.md th,.md td{border:1px solid var(--line);padding:6px 10px;text-align:left}.md th{background:var(--panel2);color:var(--mute);font-weight:500}
+.md .fade{animation:fade .4s}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.stat{background:var(--panel);padding:var(--s3) var(--s4);text-align:center}
+.stat span{display:block;color:var(--mute);font-size:11.5px}
+.stat b{font:700 20px var(--mono);color:var(--txt);font-variant-numeric:tabular-nums}
+.stat.hl b{color:var(--cyan)}
+.progressline{height:3px;background:var(--line);border-radius:2px;margin-bottom:var(--s4);overflow:hidden}
+.progressline i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .5s}
+
+/* ===== V3 report ===== */
+.rwrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:var(--s6);align-items:start}
+.toc{position:sticky;top:90px;padding:var(--s4)}
+.toc h2{font:600 11px var(--mono);letter-spacing:.12em;color:var(--dim);margin-bottom:var(--s2)}
+.toc a{display:block;color:var(--mute);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line);font-size:13px;transition:.15s}
+.toc a:hover{color:var(--txt)}
+.toc a.on{color:var(--cyan);border-left-color:var(--cyan);background:linear-gradient(90deg,rgba(90,216,240,.1),transparent)}
+.doc section{margin-bottom:var(--s6);scroll-margin-top:80px}
+.doc h2{font-size:20px;margin-bottom:var(--s4);display:flex;align-items:center;gap:10px}
+.doc h2::before{content:"";width:4px;height:20px;border-radius:2px;background:linear-gradient(var(--cyan),var(--violet))}
+.dtitle{margin-bottom:var(--s5)}
+.dtitle h1{font-size:28px}.dtitle p{color:var(--mute);margin:6px 0}
+.decision{padding:var(--s5);display:grid;grid-template-columns:auto 1fr;gap:var(--s5);align-items:center}
+.badge{border-radius:var(--r3);padding:18px 26px;text-align:center;border:1px solid rgba(74,222,128,.5);background:radial-gradient(circle at 50% 0,rgba(74,222,128,.22),rgba(74,222,128,.05));box-shadow:0 0 30px rgba(74,222,128,.15)}
+.badge small{display:block;color:var(--mute);font-size:11px;letter-spacing:.15em}
+.badge b{font-size:32px;color:var(--green);display:block;line-height:1.2}
+.gauge{position:relative;padding-top:26px}
+.gseg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.gseg div{height:12px;border-radius:3px;opacity:.35}
+.gseg div:nth-child(1){background:#ef4444}.gseg div:nth-child(2){background:#f97316}.gseg div:nth-child(3){background:#eab308}.gseg div:nth-child(4){background:#84cc16}.gseg div:nth-child(5){background:#22c55e}
+.gseg div.on{opacity:1;box-shadow:0 0 12px currentColor}
+.glab{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px;font-size:12px;color:var(--mute);text-align:center}
+.glab .on{color:var(--txt);font-weight:700}
+.pin{position:absolute;top:0;left:70%;transform:translateX(-50%);font-size:11px;color:var(--txt);background:var(--panel2);border:1px solid var(--line2);border-radius:4px;padding:0 6px;font-family:var(--mono)}
+.pin::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-4px;border:4px solid transparent;border-top-color:var(--line2);border-bottom:0}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:var(--s3);margin-top:var(--s4);grid-column:1/-1}
+.kv div{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r1);padding:8px 12px}
+.kv span{font-size:11px;color:var(--mute);display:block}.kv b{font:700 16px var(--mono)}
+.chartbox{padding:var(--s4)}
+.chartbox svg{width:100%;height:auto;display:block}
+.cap{color:var(--dim);font-size:12px;margin-top:6px}
+.ind{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3)}
+.ic2{padding:var(--s4);border:1px solid var(--line);border-radius:var(--r2);background:var(--panel)}
+.ic2 span{font-size:12px;color:var(--mute)}.ic2 b{display:block;font:700 22px var(--mono);margin:2px 0}
+.ic2 em{font-style:normal;font-size:12px;padding:1px 8px;border-radius:999px}
+.up{color:var(--green);background:rgba(74,222,128,.1)}.neu{color:var(--amber);background:rgba(251,191,36,.1)}.dn{color:var(--red);background:rgba(248,113,113,.1)}
+.meter{height:6px;background:var(--line);border-radius:3px;margin-top:10px;position:relative}
+.meter i{position:absolute;top:-3px;width:3px;height:12px;background:var(--txt);border-radius:2px}
+.sent{padding:var(--s4)}
+.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;gap:2px}
+.stack div{display:grid;place-items:center;font:700 13px var(--mono);color:#06110a;min-width:0}
+.leg{display:flex;gap:var(--s4);margin-top:var(--s3);flex-wrap:wrap;color:var(--mute);font-size:12.5px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.debate{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.side{padding:var(--s4) var(--s5)}
+.side.bull{border-top:3px solid var(--green)}.side.bear{border-top:3px solid var(--red)}
+.side h3{font-size:15px;margin-bottom:8px}.side.bull h3{color:var(--green)}.side.bear h3{color:var(--red)}
+.side ul{margin:0;padding-left:18px;color:#c9d3e1}.side li{margin:6px 0}
+.judge{margin-top:var(--s4);padding:var(--s4) var(--s5);border-left:3px solid var(--violet)}
+.risk{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4)}
+.rk{padding:var(--s4) var(--s5)}
+.rk h3{font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.rk .pos{font:700 12px var(--mono);padding:2px 10px;border-radius:999px}
+.rk p{color:#c9d3e1;margin:8px 0 0}
+.cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.cfg div{background:var(--panel);padding:10px 14px}.cfg span{display:block;font-size:11.5px;color:var(--mute)}.cfg b{font:600 13.5px var(--mono)}
+.disc{border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.07);border-radius:var(--r2);padding:var(--s4) var(--s5);color:#e9d9ae}
+
+@media (max-width:1100px){
+  .ind{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:900px){
+  .setup,.dash,.rwrap{grid-template-columns:1fr}
+  .stepper{position:static;display:flex;gap:8px;overflow:auto;padding:var(--s3)}
+  .stepper li{flex-direction:column;gap:4px;min-width:64px;text-align:center;font-size:11px}
+  .stepper li::after{display:none!important}.stepper li small{display:none}
+  .toc{position:sticky;top:60px;z-index:20;display:flex;gap:4px;overflow:auto;padding:6px;background:rgba(10,13,18,.92)}
+  .toc h2{display:none}.toc a{white-space:nowrap;border-left:0;border-bottom:2px solid var(--line)}.toc a.on{border-bottom-color:var(--cyan)}
+  .debate,.risk{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .decision{grid-template-columns:1fr}
+  .prog,.msgs{height:auto;max-height:340px}
+}
+@media (max-width:560px){
+  main{padding:var(--s4) var(--s3) 48px}
+  .demo{margin-left:0;font-size:11px}
+  .row2,.depth{grid-template-columns:1fr}
+  .card{padding:var(--s4)}
+  .mrow{grid-template-columns:62px 1fr;gap:6px}.mrow .tag{grid-row:1;grid-column:2;justify-self:end}.mrow .ct{grid-column:1/-1}
+  .ind{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}.stats .stat:last-child{grid-column:1/-1}
+  .tab{padding:5px 10px;font-size:13px}.tabs{margin-left:0}
+  .dtitle h1{font-size:22px}
+  .badge b{font-size:26px}
+  .report{padding:var(--s5) var(--s3) var(--s4)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .ic .ok{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="logo" aria-hidden="true">▲</div><div>TradingAgents<small>多代理人交易分析框架・介面示範</small></div></div>
+    <div class="tabs" role="tablist" aria-label="畫面">
+      <button class="tab" role="tab" id="t1" aria-controls="v1" data-v="v1"><b>01</b>啟動設定</button>
+      <button class="tab" role="tab" id="t2" aria-controls="v2" data-v="v2"><b>02</b>執行儀表板</button>
+      <button class="tab" role="tab" id="t3" aria-controls="v3" data-v="v3"><b>03</b>最終報告</button>
+    </div>
+    <span class="demo">⚠ 示範資料，非投資建議</span>
+  </div>
+</header>
+
+<main id="main">
+<!-- ============ V1 ============ -->
+<section class="view" id="v1" role="tabpanel" aria-labelledby="t1">
+  <div class="hero">
+    <div class="ascii" aria-hidden="true">TRADINGAGENTS</div>
+    <h1 class="sr">TradingAgents 啟動設定</h1>
+    <p>多代理人大型語言模型金融交易框架 — 六個步驟完成設定，由分析師、研究員、交易員與風控團隊協作出決策。</p>
+  </div>
+  <div class="setup">
+    <ol class="stepper panel" id="stepper" aria-label="設定進度"></ol>
+    <div class="steps">
+      <div class="panel card" data-step="0">
+        <h3><span class="n">STEP 1</span>標的代號</h3><p class="hint">輸入要分析的股票／ETF／加密貨幣代號。</p>
+        <label class="f" for="ticker">Ticker</label>
+        <input id="ticker" type="text" value="NVDA" maxlength="12" autocomplete="off" spellcheck="false" aria-describedby="tkh">
+        <div class="chips" id="tkh" role="group" aria-label="常用代號"><button class="chip" type="button">SPY</button><button class="chip" type="button">NVDA</button><button class="chip" type="button">AAPL</button><button class="chip" type="button">BTC-USD</button><button class="chip" type="button">2330.TW</button></div>
+      </div>
+      <div class="panel card" data-step="1">
+        <h3><span class="n">STEP 2</span>分析日期</h3><p class="hint">模型只會看到這一天（含）之前的資料。</p>
+        <label class="f" for="date">分析日期</label>
+        <input id="date" type="date" value="2026-10-12" max="2026-10-13">
+      </div>
+      <div class="panel card" data-step="2">
+        <h3><span class="n">STEP 3</span>分析師團隊</h3><p class="hint">至少選一位；每位分析師會呼叫各自的資料工具。</p>
+        <div class="opts" id="analysts">
+          <label class="opt"><input type="checkbox" value="market" checked><b>市場分析師</b><span>價格、技術指標</span></label>
+          <label class="opt"><input type="checkbox" value="social" checked><b>社群分析師</b><span>Reddit／X 情緒</span></label>
+          <label class="opt"><input type="checkbox" value="news" checked><b>新聞分析師</b><span>總經與公司新聞</span></label>
+          <label class="opt"><input type="checkbox" value="fund" checked><b>基本面分析師</b><span>財報、估值</span></label>
+        </div>
+      </div>
+      <div class="panel card" data-step="3">
+        <h3><span class="n">STEP 4</span>研究深度</h3><p class="hint">深度越高，多空辯論與風控討論的輪數越多，也越花時間與費用。</p>
+        <div class="depth" id="depth">
+          <label class="opt radio"><input type="radio" name="depth" value="1"><b>淺層<span class="bars"><i class="on"></i><i></i><i></i></span></b><span>1 輪辯論・快速</span></label>
+          <label class="opt radio"><input type="radio" name="depth" value="3" checked><b>中等<span class="bars"><i class="on"></i><i class="on"></i><i></i></span></b><span>3 輪辯論・平衡</span></label>
+          <label class="opt radio"><input type="radio" name="depth" value="5"><b>深入<span class="bars"><i class="on"></i><i class="on"></i><i class="on"></i></span></b><span>5 輪辯論・完整</span></label>
+        </div>
+      </div>
+      <div class="panel card" data-step="4">
+        <h3><span class="n">STEP 5</span>模型供應商</h3><p class="hint">選擇 LLM 服務（示範，不會真的連線）。</p>
+        <div class="opts" id="prov">
+          <label class="opt radio"><input type="radio" name="prov" value="OpenAI" checked><b>OpenAI</b><span>api.openai.com</span></label>
+          <label class="opt radio"><input type="radio" name="prov" value="Anthropic"><b>Anthropic</b><span>api.anthropic.com</span></label>
+          <label class="opt radio"><input type="radio" name="prov" value="Google"><b>Google</b><span>Gemini API</span></label>
+          <label class="opt radio"><input type="radio" name="prov" value="Ollama"><b>Ollama</b><span>本機 localhost</span></label>
+        </div>
+      </div>
+      <div class="panel card" data-step="5">
+        <h3><span class="n">STEP 6</span>快思考與深思考模型</h3><p class="hint">快思考負責工具呼叫與摘要；深思考負責辯論與最終決策。</p>
+        <div class="row2">
+          <div><label class="f" for="quick">快思考模型（示範名稱）</label><select id="quick"></select></div>
+          <div><label class="f" for="deep">深思考模型（示範名稱）</label><select id="deep"></select></div>
+        </div>
+      </div>
+      <div class="panel summary">
+        <div><div style="color:var(--mute);font-size:12px">設定摘要</div><code id="sum"></code></div>
+        <button class="btn pri" id="go" type="button">▶ 開始分析</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ V2 ============ -->
+<section class="view" id="v2" role="tabpanel" aria-labelledby="t2">
+  <h1 class="sr">執行中儀表板</h1>
+  <div class="ctl">
+    <button class="btn pri" id="play" type="button">▶ 播放</button>
+    <button class="btn" id="replay" type="button">↺ 重播</button>
+    <div class="seg" role="group" aria-label="播放速度" id="speed">
+      <button type="button" data-sp="1" aria-pressed="true">1×</button><button type="button" data-sp="2" aria-pressed="false">2×</button><button type="button" data-sp="4" aria-pressed="false">4×</button><button type="button" data-sp="8" aria-pressed="false">8×</button>
+    </div>
+    <div class="grow"></div>
+    <div class="runstate" id="rs" role="status"><span class="live"><i></i></span><span id="rstxt">待命</span></div>
+  </div>
+  <div class="progressline" aria-hidden="true"><i id="pbar"></i></div>
+  <div class="dash">
+    <div class="panel c"><span class="pt c">PROGRESS 進度</span><div class="prog" id="prog"></div></div>
+    <div class="panel v"><span class="pt v">MESSAGES &amp; TOOLS 訊息流</span><div class="msgs" id="msgs" aria-live="off" tabindex="0" aria-label="訊息流"><div class="empty">按下「播放」開始模擬分析流程</div></div></div>
+  </div>
+  <div class="panel g report"><span class="pt g">CURRENT REPORT 目前報告</span>
+    <div class="rhead"><h3 id="rtitle">尚無報告</h3><span id="rsub" style="color:var(--dim);font:12px var(--mono)"></span></div>
+    <div class="md" id="rbody" aria-live="polite"><p style="color:var(--dim)">點選左側已完成的角色，可切換檢視該角色的報告。</p></div>
+  </div>
+  <div class="stats" id="stats" role="group" aria-label="統計">
+    <div class="stat"><span>工具呼叫</span><b id="s-tool">0</b></div>
+    <div class="stat"><span>LLM 呼叫</span><b id="s-llm">0</b></div>
+    <div class="stat"><span>已產出報告</span><b id="s-rep">0 / 12</b></div>
+    <div class="stat"><span>經過時間</span><b id="s-time">00:00</b></div>
+    <div class="stat hl"><span>預估費用（示範）</span><b id="s-cost">$0.000</b></div>
+  </div>
+</section>
+
+<!-- ============ V3 ============ -->
+<section class="view" id="v3" role="tabpanel" aria-labelledby="t3">
+  <div class="rwrap">
+    <nav class="toc panel" aria-label="報告目錄"><h2>目錄</h2>
+      <a href="#r-dec">最終決策</a><a href="#r-price">價格走勢</a><a href="#r-ind">技術指標</a><a href="#r-sent">社群情緒</a><a href="#r-debate">多空辯論</a><a href="#r-risk">風控意見</a><a href="#r-cfg">執行設定</a><a href="#r-disc">免責聲明</a>
+    </nav>
+    <article class="doc">
+      <div class="dtitle"><h1><span class="tk">NVDA</span> 交易分析報告</h1><p>分析日期 <span class="dt">2026-10-12</span>・由 TradingAgents 多代理人流程產出・<b style="color:var(--amber)">示範資料，非投資建議</b></p></div>
+      <section id="r-dec"><h2>最終決策</h2>
+        <div class="panel decision">
+          <div class="badge"><small>FINAL RATING</small><b>買進</b><small>BUY・4 / 5</small></div>
+          <div class="gauge"><span class="pin">本次評級</span>
+            <div class="gseg" aria-hidden="true"><div></div><div></div><div></div><div class="on" style="color:#84cc16"></div><div></div></div>
+            <div class="glab"><span>強力賣出</span><span>賣出</span><span>持有</span><span class="on">買進</span><span>強力買進</span></div>
+            <p class="sr">五段評級中的第四段：買進</p>
+          </div>
+          <div class="kv"><div><span>建議動作</span><b>分批加碼</b></div><div><span>目標價（示範）</span><b>$ 148.0</b></div><div><span>停損（示範）</span><b>$ 126.5</b></div><div><span>信心度</span><b>72%</b></div></div>
+        </div>
+      </section>
+      <section id="r-price"><h2>價格走勢</h2>
+        <div class="panel chartbox"><svg id="chart" viewBox="0 0 800 300" role="img" aria-label="示範價格走勢圖：近 90 日價格與 20 日均線，整體呈上升趨勢"></svg><div class="cap">示範用隨機生成數列，非真實行情。實線為收盤價，虛線為 20 日均線。</div></div>
+      </section>
+      <section id="r-ind"><h2>技術指標</h2>
+        <div class="ind">
+          <div class="ic2"><span>RSI (14)</span><b>61.4</b><em class="neu">中性偏強</em><div class="meter"><i style="left:61%"></i></div></div>
+          <div class="ic2"><span>MACD</span><b>+1.82</b><em class="up">黃金交叉</em><div class="meter"><i style="left:72%"></i></div></div>
+          <div class="ic2"><span>50 日均線</span><b>$ 132.7</b><em class="up">價格在上方</em><div class="meter"><i style="left:68%"></i></div></div>
+          <div class="ic2"><span>布林帶寬</span><b>8.9%</b><em class="neu">收斂中</em><div class="meter"><i style="left:35%"></i></div></div>
+        </div>
+      </section>
+      <section id="r-sent"><h2>社群情緒</h2>
+        <div class="panel sent">
+          <div class="stack" role="img" aria-label="看多 54%，中立 28%，看空 18%"><div style="flex:54;background:var(--green)">54%</div><div style="flex:28;background:var(--amber)">28%</div><div style="flex:18;background:var(--red)">18%</div></div>
+          <div class="leg"><span><i style="background:var(--green)"></i>看多 54%</span><span><i style="background:var(--amber)"></i>中立 28%</span><span><i style="background:var(--red)"></i>看空 18%</span><span style="margin-left:auto;color:var(--dim)">樣本：示範 1,240 則貼文</span></div>
+        </div>
+      </section>
+      <section id="r-debate"><h2>多空辯論</h2>
+        <div class="debate">
+          <div class="panel side bull"><h3>▲ 看多研究員</h3><ul><li>資料中心需求持續強勁，營收動能延續。</li><li>價格站穩 50 日均線，量能放大。</li><li>新產品週期帶動毛利率維持高檔。</li></ul></div>
+          <div class="panel side bear"><h3>▼ 看空研究員</h3><ul><li>估值偏高，對利率與預期落差敏感。</li><li>主要客戶自研晶片的長期替代風險。</li><li>RSI 接近過熱區，短線回檔機率上升。</li></ul></div>
+        </div>
+        <div class="panel judge"><b style="color:var(--violet)">研究經理裁決</b><p style="margin:6px 0 0;color:#c9d3e1">多方論據在基本面與趨勢上較具證據支持；空方風險屬估值與長期替代，宜以分批與停損管理。採納偏多結論。</p></div>
+      </section>
+      <section id="r-risk"><h2>風控意見</h2>
+        <div class="risk">
+          <div class="panel rk"><h3>激進派 <span class="pos up">倉位 8%</span></h3><p>趨勢與動能俱佳，建議一次到位並以移動停損保護獲利。</p></div>
+          <div class="panel rk"><h3>中立派 <span class="pos neu">倉位 5%</span></h3><p>分三批進場，回測 50 日均線時加碼，單筆風險不超過 1%。</p></div>
+          <div class="panel rk"><h3>保守派 <span class="pos dn">倉位 2%</span></h3><p>財報前不宜重壓；先建小部位，待波動收斂再評估。</p></div>
+        </div>
+        <div class="panel judge" style="border-left-color:var(--green)"><b style="color:var(--green)">投資組合經理</b><p style="margin:6px 0 0;color:#c9d3e1">採中立派方案：總倉位 5%，分三批；跌破 $126.5 全數出場。</p></div>
+      </section>
+      <section id="r-cfg"><h2>執行設定</h2>
+        <div class="cfg" id="cfg"></div>
+      </section>
+      <section id="r-disc"><h2>免責聲明</h2>
+        <div class="disc">本頁所有數字、價格、評級與文字皆為<b>示範資料</b>，由介面原型產生，並非真實行情，亦<b>不構成任何投資建議</b>。TradingAgents 為研究用途框架，實際使用請自行評估風險並諮詢專業人士。</div>
+      </section>
+    </article>
+  </div>
+</section>
+</main>
+
+<script>
+(()=>{
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const MODELS={OpenAI:[["gpt-5-mini","gpt-5"],["gpt-5","o4-deep"]],Anthropic:[["haiku-示範","sonnet-示範"],["sonnet-示範","opus-示範"]],Google:[["gemini-flash-示範","gemini-pro-示範"],["gemini-pro-示範","gemini-ultra-示範"]],Ollama:[["qwen3:8b","llama4:8b"],["qwen3:32b","llama4:70b"]]};
+const state={ticker:"NVDA",date:"2026-10-12",depth:"3",prov:"OpenAI"};
+
+/* ---------- routing ---------- */
+function show(v){
+  if(!["v1","v2","v3"].includes(v))v="v1";
+  $$(".view").forEach(e=>e.classList.toggle("on",e.id===v));
+  $$(".tab").forEach(t=>{const on=t.dataset.v===v;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
+  if(v==="v3")tocUpdate();
+}
+function route(){show(location.hash.replace("#","").split("/")[0])}
+addEventListener("hashchange",route);
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{location.hash=t.dataset.v}));
+$(".tabs").addEventListener("keydown",e=>{
+  const ts=$$(".tab"),i=ts.findIndex(t=>t.getAttribute("aria-selected")==="true");
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){const n=ts[(i+(e.key==="ArrowRight"?1:2))%3];location.hash=n.dataset.v;n.focus()}
+});
+
+/* ---------- V1 ---------- */
+const STEPS=[["代號","ticker"],["日期","date"],["分析師","analysts"],["深度","depth"],["供應商","provider"],["模型","models"]];
+const touched=new Set([0,1,2,3,4,5].filter(()=>false));
+function selects(){
+  const p=state.prov,[q,d]=MODELS[p];
+  $("#quick").innerHTML=[q[0],q[1]].map(x=>`<option>${x}</option>`).join("");
+  $("#deep").innerHTML=[d[0],d[1]].map(x=>`<option>${x}</option>`).join("");
+  $("#deep").selectedIndex=0;
+}
+function summary(){
+  const an=$$("#analysts input:checked").length;
+  $("#sum").textContent=`${state.ticker||"—"} · ${state.date} · 分析師×${an} · 深度 ${state.depth} 輪 · ${state.prov} (${$("#quick").value} / ${$("#deep").value})`;
+  $("#go").disabled=!state.ticker||an===0;
+  const ok=[!!state.ticker,!!state.date,an>0,true,true,true];
+  $("#stepper").innerHTML=STEPS.map((s,i)=>`<li class="${ok[i]?"done":""}"><span class="dot">${ok[i]?"✓":i+1}</span><span>${s[0]}<small>${["股票／加密代號","資料截止日","四位可選","辯論輪數","LLM 服務","兩段式模型"][i]}</small></span></li>`).join("");
+  $$(".tk").forEach(e=>e.textContent=state.ticker||"—");
+  $$(".dt").forEach(e=>e.textContent=state.date);
+  $("#cfg").innerHTML=[["標的",state.ticker],["日期",state.date],["分析師",$$("#analysts input:checked").map(i=>({market:"市場",social:"社群",news:"新聞",fund:"基本面"})[i.value]).join("／")],["辯論輪數",state.depth],["供應商",state.prov],["快思考",$("#quick").value],["深思考",$("#deep").value],["資料來源","示範資料"]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");
+}
+$("#ticker").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9.\-^=]/g,"");state.ticker=e.target.value;summary()});
+$$(".chip").forEach(c=>c.addEventListener("click",()=>{$("#ticker").value=state.ticker=c.textContent;summary()}));
+$("#date").addEventListener("input",e=>{state.date=e.target.value;summary()});
+$("#analysts").addEventListener("change",summary);
+$("#depth").addEventListener("change",e=>{state.depth=e.target.value;summary()});
+$("#prov").addEventListener("change",e=>{state.prov=e.target.value;selects();summary()});
+$("#quick").addEventListener("change",summary);$("#deep").addEventListener("change",summary);
+$("#go").addEventListener("click",()=>{location.hash="v2";setTimeout(()=>{reset();play()},50)});
+selects();summary();
+
+/* ---------- V2 data ---------- */
+const AGENTS=[
+ {id:"market",team:"分析師團隊",name:"市場分析師"},{id:"social",team:"分析師團隊",name:"社群分析師"},{id:"news",team:"分析師團隊",name:"新聞分析師"},{id:"fund",team:"分析師團隊",name:"基本面分析師"},
+ {id:"bull",team:"研究團隊",name:"看多研究員"},{id:"bear",team:"研究團隊",name:"看空研究員"},{id:"rm",team:"研究團隊",name:"研究經理"},
+ {id:"trader",team:"交易團隊",name:"交易員"},
+ {id:"risky",team:"風險管理",name:"激進分析師"},{id:"neutral",team:"風險管理",name:"中立分析師"},{id:"safe",team:"風險管理",name:"保守分析師"},
+ {id:"pm",team:"投資組合管理",name:"投資組合經理"}];
+const TK=()=>state.ticker||"NVDA";
+const SCRIPT={
+ market:{tools:["get_stock_data","get_indicators"],rs:"價格自 9 月低點回升並站上 50 日均線，RSI 61，MACD 黃金交叉；量能溫和放大。",title:"市場分析報告",
+  md:()=>`<h4><span>1</span>價格與趨勢</h4><ul><li>${TK()} 近 30 日上漲約 <strong>9.8%</strong>，站穩 50 日均線 $132.7。</li><li>20 日均線持續上彎，短線趨勢偏多。</li></ul><h4><span>2</span>動能指標</h4><table><tr><th>指標</th><th>數值</th><th>解讀</th></tr><tr><td>RSI(14)</td><td>61.4</td><td>中性偏強</td></tr><tr><td>MACD</td><td>+1.82</td><td>黃金交叉</td></tr><tr><td>布林帶寬</td><td>8.9%</td><td>收斂</td></tr></table><h4><span>3</span>小結</h4><p>技術面偏多，留意 $142 附近壓力與短線過熱。（示範資料）</p>`},
+ social:{tools:["get_reddit_posts","get_social_sentiment"],rs:"社群看多比例 54%，討論熱度較上週上升；少數帖文擔心估值。",title:"社群情緒報告",
+  md:()=>`<h4><span>1</span>情緒分布</h4><ul><li>看多 <strong>54%</strong>、中立 28%、看空 18%（示範樣本 1,240 則）。</li><li>熱門主題：新品週期、資料中心需求、財報預期。</li></ul><h4><span>2</span>小結</h4><p>散戶情緒正面但未到極端，反向風險有限。（示範資料）</p>`},
+ news:{tools:["get_news","get_global_news"],rs:"總經面降息預期支持風險資產；公司面有新合約消息，出口管制仍是不確定因素。",title:"新聞分析報告",
+  md:()=>`<h4><span>1</span>總體環境</h4><ul><li>市場預期央行維持寬鬆路徑，風險資產受惠。</li><li>全球股市接近高檔，資金輪動至科技股。</li></ul><h4><span>2</span>公司相關</h4><ul><li>新增大型雲端客戶合約的報導。</li><li>出口管制規則更新，影響待評估。</li></ul>`},
+ fund:{tools:["get_fundamentals","get_income_statement"],rs:"營收與毛利率維持高檔，本益比高於五年均值，自由現金流充沛。",title:"基本面報告",
+  md:()=>`<h4><span>1</span>財務體質</h4><ul><li>營收年增 <strong>+62%</strong>，毛利率 74%。</li><li>自由現金流連續八季成長。</li></ul><h4><span>2</span>估值</h4><p>預估本益比 34 倍，高於五年均值但低於成長率。（示範資料）</p>`},
+ bull:{tools:[],rs:"多方論述：需求能見度高、趨勢向上、毛利穩健。",title:"看多研究員論述",md:()=>`<h4><span>▲</span>多方論點</h4><ul><li>資料中心需求持續強勁。</li><li>價格站穩均線，量能配合。</li><li>新產品週期支撐毛利。</li></ul>`},
+ bear:{tools:[],rs:"空方論述：估值偏高，客戶自研晶片與短線過熱為主要風險。",title:"看空研究員論述",md:()=>`<h4><span>▼</span>空方論點</h4><ul><li>估值對利率敏感。</li><li>客戶自研晶片長期替代。</li><li>RSI 接近過熱區。</li></ul>`},
+ rm:{tools:[],rs:"權衡雙方證據，多方在基本面與趨勢較具支持，採納偏多結論。",title:"研究經理投資計畫",md:()=>`<h4><span>→</span>裁決</h4><p>建議：<strong>買進（分批）</strong>。理由：基本面與趨勢證據較強；風險以停損與倉位管理控制。</p>`},
+ trader:{tools:[],rs:"依投資計畫擬定進場：三批、回測均線加碼，停損 $126.5。",title:"交易員提案",md:()=>`<h4><span>→</span>交易提案</h4><table><tr><th>項目</th><th>內容</th></tr><tr><td>方向</td><td>買進</td></tr><tr><td>分批</td><td>3 批（40/30/30）</td></tr><tr><td>停損</td><td>$ 126.5</td></tr><tr><td>目標</td><td>$ 148.0</td></tr></table>`},
+ risky:{tools:[],rs:"激進：一次到位，用移動停損鎖利。",title:"激進風控意見",md:()=>`<p><strong>激進派</strong>建議倉位 8%，一次進場並以移動停損保護。</p>`},
+ neutral:{tools:[],rs:"中立：分三批，單筆風險 ≤ 1%。",title:"中立風控意見",md:()=>`<p><strong>中立派</strong>建議倉位 5%，分三批，回測均線加碼。</p>`},
+ safe:{tools:[],rs:"保守：財報前小部位，等待波動收斂。",title:"保守風控意見",md:()=>`<p><strong>保守派</strong>建議倉位 2%，財報前不宜重壓。</p>`},
+ pm:{tools:[],rs:"綜合三派意見，採中立方案；最終評級：買進。",title:"投資組合經理最終決策",md:()=>`<h4><span>★</span>最終決策</h4><p><strong style="color:var(--green)">買進 BUY（4/5）</strong>：總倉位 5%，分三批；跌破 $126.5 全數出場。</p><p><a href="#v3">檢視完整 HTML 報告 →</a></p>`}
+};
+
+/* ---------- V2 engine ---------- */
+const st={status:{},reports:{},sel:null,tool:0,llm:0,sim:0,cost:0,queue:[],i:0,timer:null,playing:false,speed:1,done:false};
+function ico(s){return s==="completed"?'<span class="okbg"><svg viewBox="0 0 20 20"><path class="ok" d="M4.5 10.5l3.5 3.5 7.5-8"/></svg></span>':s==="in_progress"?'<span class="spin"></span>':'<span class="pend"></span>'}
+const SL={pending:"待處理",in_progress:"進行中",completed:"已完成"};
+function drawProg(){
+  const teams=[...new Set(AGENTS.map(a=>a.team))];
+  $("#prog").innerHTML=teams.map(t=>{const ag=AGENTS.filter(a=>a.team===t);const dn=ag.filter(a=>st.status[a.id]==="completed").length;
+   return `<div class="team"><h4>${t}<span>${dn}/${ag.length}</span></h4>${ag.map(a=>`<button type="button" class="ag${st.sel===a.id?" sel":""}" data-id="${a.id}" data-s="${st.status[a.id]}" ${st.reports[a.id]?"":"disabled"} aria-label="${a.name}，${SL[st.status[a.id]]}"><span class="ic">${ico(st.status[a.id])}</span><span class="nm">${a.name}</span><span class="st">${SL[st.status[a.id]]}</span></button>`).join("")}</div>`}).join("");
+}
+function drawReport(){
+  const id=st.sel,r=id&&st.reports[id];
+  if(!r)return;
+  $("#rtitle").textContent=r.title;$("#rsub").textContent=AGENTS.find(a=>a.id===id).name;
+  $("#rbody").innerHTML=`<div class="fade">${r.html}</div>`;
+}
+function drawStats(){
+  $("#s-tool").textContent=st.tool;$("#s-llm").textContent=st.llm;
+  const n=Object.keys(st.reports).length;$("#s-rep").textContent=n+" / 12";
+  const s=Math.floor(st.sim);$("#s-time").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+  $("#s-cost").textContent="$"+st.cost.toFixed(3);
+  $("#pbar").style.width=(Object.values(st.status).filter(x=>x==="completed").length/12*100)+"%";
+}
+function clock(){const b=new Date(2026,9,12,9,30,0).getTime()+st.sim*1000;return new Date(b).toTimeString().slice(0,8)}
+function addMsg(type,html){
+  const m=$("#msgs");if(m.querySelector(".empty"))m.innerHTML="";
+  const d=document.createElement("div");d.className="mrow "+(type==="tool"?"tl":"rsn");
+  d.innerHTML=`<time>${clock()}</time><span class="tag ${type==="tool"?"tool":"rs"}">${type==="tool"?"Tool":"Reasoning"}</span><div class="ct">${html}</div>`;
+  m.prepend(d);while(m.children.length>60)m.lastChild.remove();
+}
+function build(){
+  const q=[],sel=$$("#analysts input:checked").map(i=>i.value);
+  AGENTS.forEach(a=>{
+    if(["market","social","news","fund"].includes(a.id)&&!sel.includes(a.id))return;
+    const sc=SCRIPT[a.id];
+    q.push({d:700,f:()=>{st.status[a.id]="in_progress";drawProg()}});
+    sc.tools.forEach(t=>q.push({d:1100,f:()=>{st.tool++;st.llm++;st.cost+=.004;addMsg("tool",`${t}: <em>{'ticker': '${TK()}', 'curr_date': '${state.date}'}</em>`)}}));
+    q.push({d:1500,f:()=>{st.llm++;st.cost+=.011;addMsg("rs",sc.rs)}});
+    q.push({d:1300,f:()=>{st.llm++;st.cost+=.019;st.reports[a.id]={title:sc.title,html:`<div class="md">${sc.md()}</div>`.replace(/^<div class="md">|<\/div>$/g,"")};st.status[a.id]="completed";st.sel=a.id;drawProg();drawReport()}});
+  });
+  return q;
+}
+function reset(){
+  clearTimeout(st.timer);Object.assign(st,{status:Object.fromEntries(AGENTS.map(a=>[a.id,"pending"])),reports:{},sel:null,tool:0,llm:0,sim:0,cost:0,i:0,playing:false,done:false,queue:build()});
+  $("#msgs").innerHTML='<div class="empty">按下「播放」開始模擬分析流程</div>';
+  $("#rtitle").textContent="尚無報告";$("#rsub").textContent="";$("#rbody").innerHTML='<p style="color:var(--dim)">點選左側已完成的角色，可切換檢視該角色的報告。</p>';
+  drawProg();drawStats();ui();
+}
+function ui(){
+  $("#play").textContent=st.playing?"⏸ 暫停":(st.done?"✓ 已完成":(st.i>0?"▶ 繼續":"▶ 播放"));
+  $("#play").disabled=st.done;
+  const rs=$("#rs");rs.classList.toggle("run",st.playing);
+  $("#rstxt").textContent=st.playing?"執行中":st.done?"分析完成":st.i>0?"已暫停":"待命";
+}
+function step(){
+  if(!st.playing)return;
+  if(st.i>=st.queue.length){st.playing=false;st.done=true;ui();return}
+  const e=st.queue[st.i++];st.sim+=e.d/1000*0.6;e.f();drawStats();
+  if(st.i>=st.queue.length){st.playing=false;st.done=true;ui();return}
+  st.timer=setTimeout(step,Math.max(30,st.queue[st.i].d/st.speed));
+}
+function play(){
+  if(st.done)return;
+  if(st.playing){st.playing=false;clearTimeout(st.timer);ui();return}
+  st.playing=true;ui();st.timer=setTimeout(step,200/st.speed);
+}
+$("#play").addEventListener("click",play);
+$("#replay").addEventListener("click",()=>{reset();play()});
+$("#speed").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.speed=+b.dataset.sp;$$("#speed button").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+$("#prog").addEventListener("click",e=>{const b=e.target.closest(".ag");if(!b||b.disabled)return;st.sel=b.dataset.id;drawProg();drawReport()});
+reset();
+/* 供截圖／測試：#v2/done 直接跑完 */
+function fast(){reset();st.playing=true;while(st.i<st.queue.length){const e=st.queue[st.i++];st.sim+=e.d/1000*.6;e.f()}st.playing=false;st.done=true;st.sel="market";drawProg();drawReport();drawStats();ui()}
+window.__fast=fast;
+
+/* ---------- V3 chart ---------- */
+(function chart(){
+  let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+  const N=90,p=[];let v=118;for(let i=0;i<N;i++){v+=(rnd()-.42)*2.6+.16;p.push(v)}const off=138.4-p[N-1];for(let i=0;i<N;i++)p[i]+=off;
+  const ma=p.map((_,i)=>{const a=p.slice(Math.max(0,i-19),i+1);return a.reduce((x,y)=>x+y)/a.length});
+  const W=800,H=300,L=46,R=14,T=14,B=28,mn=Math.min(...p)-3,mx=Math.max(...p)+3;
+  const X=i=>L+i*(W-L-R)/(N-1),Y=y=>T+(1-(y-mn)/(mx-mn))*(H-T-B);
+  const path=a=>a.map((y,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(y).toFixed(1)).join("");
+  let g="";for(let k=0;k<5;k++){const y=mn+(mx-mn)*k/4;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(y)}" y2="${Y(y)}" stroke="#243040" stroke-dasharray="3 4"/><text x="${L-8}" y="${Y(y)+4}" fill="#6b778a" font-size="11" text-anchor="end" font-family="monospace">${y.toFixed(0)}</text>`}
+  const lab=["8 月","9 月","10 月"];lab.forEach((t,i)=>{g+=`<text x="${X(5+i*38)}" y="${H-8}" fill="#6b778a" font-size="11" text-anchor="middle">${t}</text>`});
+  const lx=X(N-1),ly=Y(p[N-1]);
+  $("#chart").innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ad8f0" stop-opacity=".35"/><stop offset="1" stop-color="#5ad8f0" stop-opacity="0"/></linearGradient></defs>${g}<path d="${path(p)}L${X(N-1)} ${H-B}L${X(0)} ${H-B}Z" fill="url(#ag)"/><path d="${path(ma)}" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5 4"/><path d="${path(p)}" fill="none" stroke="#5ad8f0" stroke-width="2" stroke-linejoin="round"/><circle cx="${lx}" cy="${ly}" r="4.5" fill="#5ad8f0" stroke="#0a0d12" stroke-width="2"/><text x="${lx-8}" y="${ly-10}" fill="#e4eaf2" font-size="12" text-anchor="end" font-family="monospace">${p[N-1].toFixed(1)}</text>`;
+})();
+
+/* ---------- V3 toc ---------- */
+const secs=["r-dec","r-price","r-ind","r-sent","r-debate","r-risk","r-cfg","r-disc"];
+function tocUpdate(){
+  if(!$("#v3").classList.contains("on"))return;
+  let cur=secs[0];const y=140;
+  secs.forEach(id=>{if($("#"+id).getBoundingClientRect().top<=y)cur=id});
+  if(innerHeight+scrollY>=document.documentElement.scrollHeight-4)cur=secs[secs.length-1];
+  $$(".toc a").forEach(a=>{const on=a.getAttribute("href")==="#"+cur;a.classList.toggle("on",on);on?a.setAttribute("aria-current","true"):a.removeAttribute("aria-current")});
+}
+addEventListener("scroll",tocUpdate,{passive:true});
+/* toc 連結不要被當成 view hash */
+$$(".toc a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();$(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}));
+$$("#md a[href='#v3']");
+$("#rbody").addEventListener("click",e=>{const a=e.target.closest("a[href='#v3']");if(a){e.preventDefault();location.hash="v3"}});
+route();
+if(location.hash==="#v2/done")fast();
+})();
+</script>
+</body>
+</html>
