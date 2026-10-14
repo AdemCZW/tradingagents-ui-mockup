@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="google" content="notranslate">
+<link rel="icon" href="data:,">
 <title>TradingAgents 介面示範（示範資料，非投資建議）</title>
 <style>
 :root{
@@ -17,7 +18,7 @@
   --sans:system-ui,-apple-system,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:80px}
+html{scroll-behavior:smooth}
 body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#122033 0,transparent 60%),radial-gradient(900px 500px at -10% 10%,#14202a 0,transparent 55%),var(--bg);
   color:var(--txt);font:14px/1.6 var(--sans);min-height:100vh;-webkit-text-size-adjust:100%}
 a{color:var(--cyan)}
@@ -126,6 +127,7 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--cyan)}
 .ag[data-s=in_progress] .st{color:var(--amber);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.08)}
 .ag[data-s=in_progress]{background:linear-gradient(90deg,rgba(251,191,36,.09),transparent)}
 .ag[data-s=completed] .nm{color:var(--txt)}
+.ag[data-s=skipped] .nm{text-decoration:line-through}
 .ag[data-s=completed] .st{color:var(--green);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.07)}
 .ic svg{width:18px;height:18px}
 .ic .pend{width:8px;height:8px;border-radius:50%;border:2px solid var(--line2)}
@@ -233,7 +235,9 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--cyan)}
   .stepper{position:static;display:flex;gap:8px;overflow:auto;padding:var(--s3)}
   .stepper li{flex-direction:column;gap:4px;min-width:64px;text-align:center;font-size:11px}
   .stepper li::after{display:none!important}.stepper li small{display:none}
-  .toc{position:sticky;top:60px;z-index:20;display:flex;gap:4px;overflow:auto;padding:6px;background:rgba(10,13,18,.92)}
+  .top{position:static}
+  .doc section{scroll-margin-top:64px}
+  .toc{position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow:auto;padding:6px;background:rgba(10,13,18,.92)}
   .toc h2{display:none}.toc a{white-space:nowrap;border-left:0;border-bottom:2px solid var(--line)}.toc a.on{border-bottom-color:var(--cyan)}
   .debate,.risk{grid-template-columns:1fr}
   .stats{grid-template-columns:repeat(3,1fr)}
@@ -265,17 +269,17 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--cyan)}
   <div class="top-in">
     <div class="brand"><div class="logo" aria-hidden="true">▲</div><div>TradingAgents<small>多代理人交易分析框架・介面示範</small></div></div>
     <div class="tabs" role="tablist" aria-label="畫面">
-      <button class="tab" role="tab" id="t1" aria-controls="v1" data-v="v1"><b>01</b>啟動設定</button>
-      <button class="tab" role="tab" id="t2" aria-controls="v2" data-v="v2"><b>02</b>執行儀表板</button>
-      <button class="tab" role="tab" id="t3" aria-controls="v3" data-v="v3"><b>03</b>最終報告</button>
+      <button class="tab" role="tab" id="t1" aria-controls="p-v1" data-v="v1"><b>01</b>啟動設定</button>
+      <button class="tab" role="tab" id="t2" aria-controls="p-v2" data-v="v2"><b>02</b>執行儀表板</button>
+      <button class="tab" role="tab" id="t3" aria-controls="p-v3" data-v="v3"><b>03</b>最終報告</button>
     </div>
     <span class="demo">⚠ 示範資料，非投資建議</span>
   </div>
 </header>
 
 <main id="main">
-<!-- ============ V1 ============ -->
-<section class="view" id="v1" role="tabpanel" aria-labelledby="t1">
+<!-- ============ V1 ============ (面板 id 加 p- 前綴：網址 #v1 不要對到元素，避免瀏覽器載入時自動捲動) -->
+<section class="view" id="p-v1" role="tabpanel" aria-labelledby="t1">
   <div class="hero">
     <div class="ascii" aria-hidden="true">TRADINGAGENTS</div>
     <h1 class="sr">TradingAgents 啟動設定</h1>
@@ -337,7 +341,7 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--cyan)}
 </section>
 
 <!-- ============ V2 ============ -->
-<section class="view" id="v2" role="tabpanel" aria-labelledby="t2">
+<section class="view" id="p-v2" role="tabpanel" aria-labelledby="t2">
   <h1 class="sr">執行中儀表板</h1>
   <div class="ctl">
     <button class="btn pri" id="play" type="button">▶ 播放</button>
@@ -367,7 +371,7 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--cyan)}
 </section>
 
 <!-- ============ V3 ============ -->
-<section class="view" id="v3" role="tabpanel" aria-labelledby="t3">
+<section class="view" id="p-v3" role="tabpanel" aria-labelledby="t3">
   <div class="rwrap">
     <nav class="toc panel" aria-label="報告目錄"><h2>目錄</h2>
       <a href="#r-dec">最終決策</a><a href="#r-price">價格走勢</a><a href="#r-ind">技術指標</a><a href="#r-sent">社群情緒</a><a href="#r-debate">多空辯論</a><a href="#r-risk">風控意見</a><a href="#r-cfg">執行設定</a><a href="#r-disc">免責聲明</a>
@@ -437,8 +441,9 @@ const state={ticker:"NVDA",date:"2026-10-12",depth:"3",prov:"OpenAI"};
 
 /* ---------- routing ---------- */
 function show(v){
-  if(!["v1","v2","v3"].includes(v))v="v1";
-  $$(".view").forEach(e=>e.classList.toggle("on",e.id===v));
+  if(!["v1","v2","v3"].includes(v)){if($(".view.on"))return;v="v1"}
+  const prev=$(".view.on");if(prev&&prev.id!=="p-"+v){scrollTo({top:0,behavior:"instant"});tocPin=null}
+  $$(".view").forEach(e=>e.classList.toggle("on",e.id==="p-"+v));
   $$(".tab").forEach(t=>{const on=t.dataset.v===v;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
   if(v==="v3")tocUpdate();
 }
@@ -447,12 +452,12 @@ addEventListener("hashchange",route);
 $$(".tab").forEach(t=>t.addEventListener("click",()=>{location.hash=t.dataset.v}));
 $(".tabs").addEventListener("keydown",e=>{
   const ts=$$(".tab"),i=ts.findIndex(t=>t.getAttribute("aria-selected")==="true");
-  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){const n=ts[(i+(e.key==="ArrowRight"?1:2))%3];location.hash=n.dataset.v;n.focus()}
+  const k={ArrowRight:(i+1)%3,ArrowLeft:(i+2)%3,Home:0,End:2}[e.key];
+  if(k!==undefined){e.preventDefault();const n=ts[k];location.hash=n.dataset.v;n.focus()}
 });
 
 /* ---------- V1 ---------- */
 const STEPS=[["代號","ticker"],["日期","date"],["分析師","analysts"],["深度","depth"],["供應商","provider"],["模型","models"]];
-const touched=new Set([0,1,2,3,4,5].filter(()=>false));
 function selects(){
   const p=state.prov,[q,d]=MODELS[p];
   $("#quick").innerHTML=[q[0],q[1]].map(x=>`<option>${x}</option>`).join("");
@@ -460,19 +465,19 @@ function selects(){
   $("#deep").selectedIndex=0;
 }
 function summary(){
-  const an=$$("#analysts input:checked").length;
-  $("#sum").textContent=`${state.ticker||"—"} · ${state.date} · 分析師×${an} · 深度 ${state.depth} 輪 · ${state.prov} (${$("#quick").value} / ${$("#deep").value})`;
-  $("#go").disabled=!state.ticker||an===0;
-  const ok=[!!state.ticker,!!state.date,an>0,true,true,true];
+  const an=$$("#analysts input:checked").length,dateOk=!!state.date&&$("#date").checkValidity();
+  $("#sum").textContent=`${state.ticker||"—"} · ${state.date||"—"} · 分析師×${an} · 深度 ${state.depth} 輪 · ${state.prov} (${$("#quick").value} / ${$("#deep").value})`;
+  $("#go").disabled=!state.ticker||!dateOk||an===0;
+  const ok=[!!state.ticker,dateOk,an>0,true,true,true];
   $("#stepper").innerHTML=STEPS.map((s,i)=>`<li class="${ok[i]?"done":""}"><span class="dot">${ok[i]?"✓":i+1}</span><span>${s[0]}<small>${["股票／加密代號","資料截止日","四位可選","辯論輪數","LLM 服務","兩段式模型"][i]}</small></span></li>`).join("");
   $$(".tk").forEach(e=>e.textContent=state.ticker||"—");
   $$(".dt").forEach(e=>e.textContent=state.date);
   $("#cfg").innerHTML=[["標的",state.ticker],["日期",state.date],["分析師",$$("#analysts input:checked").map(i=>({market:"市場",social:"社群",news:"新聞",fund:"基本面"})[i.value]).join("／")],["辯論輪數",state.depth],["供應商",state.prov],["快思考",$("#quick").value],["深思考",$("#deep").value],["資料來源","示範資料"]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");
 }
-$("#ticker").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9.\-^=]/g,"");state.ticker=e.target.value;summary()});
+$("#ticker").addEventListener("input",e=>{const t=e.target,v=t.value.toUpperCase().replace(/[^A-Z0-9.\-^=]/g,"");if(v!==t.value){const c=t.selectionStart-(t.value.length-v.length);t.value=v;t.setSelectionRange(c,c)}state.ticker=v;summary()});
 $$(".chip").forEach(c=>c.addEventListener("click",()=>{$("#ticker").value=state.ticker=c.textContent;summary()}));
 $("#date").addEventListener("input",e=>{state.date=e.target.value;summary()});
-$("#analysts").addEventListener("change",summary);
+$("#analysts").addEventListener("change",()=>{summary();if(!st.playing&&st.i===0){prepare();drawProg();drawStats()}});
 $("#depth").addEventListener("change",e=>{state.depth=e.target.value;summary()});
 $("#prov").addEventListener("change",e=>{state.prov=e.target.value;selects();summary()});
 $("#quick").addEventListener("change",summary);$("#deep").addEventListener("change",summary);
@@ -507,13 +512,15 @@ const SCRIPT={
 };
 
 /* ---------- V2 engine ---------- */
-const st={status:{},reports:{},sel:null,tool:0,llm:0,sim:0,cost:0,queue:[],i:0,timer:null,playing:false,speed:1,done:false};
+const st={status:{},reports:{},sel:null,tool:0,llm:0,sim:0,cost:0,queue:[],total:12,i:0,timer:null,playing:false,speed:1,done:false};
 function ico(s){return s==="completed"?'<span class="okbg"><svg viewBox="0 0 20 20"><path class="ok" d="M4.5 10.5l3.5 3.5 7.5-8"/></svg></span>':s==="in_progress"?'<span class="spin"></span>':'<span class="pend"></span>'}
-const SL={pending:"待處理",in_progress:"進行中",completed:"已完成"};
+const SL={pending:"待處理",in_progress:"進行中",completed:"已完成",skipped:"未選用"};
 function drawProg(){
+  const fid=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#prog .ag")?document.activeElement.dataset.id:null;
   const teams=[...new Set(AGENTS.map(a=>a.team))];
   $("#prog").innerHTML=teams.map(t=>{const ag=AGENTS.filter(a=>a.team===t);const dn=ag.filter(a=>st.status[a.id]==="completed").length;
    return `<div class="team"><h4>${t}<span>${dn}/${ag.length}</span></h4>${ag.map(a=>`<button type="button" class="ag${st.sel===a.id?" sel":""}" data-id="${a.id}" data-s="${st.status[a.id]}" ${st.reports[a.id]?"":"disabled"} aria-label="${a.name}，${SL[st.status[a.id]]}"><span class="ic">${ico(st.status[a.id])}</span><span class="nm">${a.name}</span><span class="st">${SL[st.status[a.id]]}</span></button>`).join("")}</div>`}).join("");
+  if(fid){const b=$(`#prog .ag[data-id="${fid}"]`);if(b&&!b.disabled)b.focus()}
 }
 function drawReport(){
   const id=st.sel,r=id&&st.reports[id];
@@ -523,10 +530,10 @@ function drawReport(){
 }
 function drawStats(){
   $("#s-tool").textContent=st.tool;$("#s-llm").textContent=st.llm;
-  const n=Object.keys(st.reports).length;$("#s-rep").textContent=n+" / 12";
+  const n=Object.keys(st.reports).length;$("#s-rep").textContent=n+" / "+st.total;
   const s=Math.floor(st.sim);$("#s-time").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
   $("#s-cost").textContent="$"+st.cost.toFixed(3);
-  $("#pbar").style.width=(Object.values(st.status).filter(x=>x==="completed").length/12*100)+"%";
+  $("#pbar").style.width=(n/st.total*100)+"%";
 }
 function clock(){const b=new Date(2026,9,12,9,30,0).getTime()+st.sim*1000;return new Date(b).toTimeString().slice(0,8)}
 function addMsg(type,html){
@@ -535,10 +542,19 @@ function addMsg(type,html){
   d.innerHTML=`<time>${clock()}</time><span class="tag ${type==="tool"?"tool":"rs"}">${type==="tool"?"Tool":"Reasoning"}</span><div class="ct">${html}</div>`;
   m.prepend(d);while(m.children.length>60)m.lastChild.remove();
 }
-function build(){
-  const q=[],sel=$$("#analysts input:checked").map(i=>i.value);
+const ANALYSTS=["market","social","news","fund"];
+function isSkipped(id,sel){return ANALYSTS.includes(id)&&!sel.includes(id)}
+/* 依畫面 1 目前勾選的分析師重建佇列與狀態（只在尚未開始時呼叫） */
+function prepare(){
+  const sel=$$("#analysts input:checked").map(i=>i.value);
+  st.status=Object.fromEntries(AGENTS.map(a=>[a.id,isSkipped(a.id,sel)?"skipped":"pending"]));
+  st.total=AGENTS.filter(a=>!isSkipped(a.id,sel)).length;
+  st.queue=build(sel);
+}
+function build(sel){
+  const q=[];
   AGENTS.forEach(a=>{
-    if(["market","social","news","fund"].includes(a.id)&&!sel.includes(a.id))return;
+    if(isSkipped(a.id,sel))return;
     const sc=SCRIPT[a.id];
     q.push({d:700,f:()=>{st.status[a.id]="in_progress";drawProg()}});
     sc.tools.forEach(t=>q.push({d:1100,f:()=>{st.tool++;st.llm++;st.cost+=.004;addMsg("tool",`${t}: <em>{'ticker': '${TK()}', 'curr_date': '${state.date}'}</em>`)}}));
@@ -548,7 +564,7 @@ function build(){
   return q;
 }
 function reset(){
-  clearTimeout(st.timer);Object.assign(st,{status:Object.fromEntries(AGENTS.map(a=>[a.id,"pending"])),reports:{},sel:null,tool:0,llm:0,sim:0,cost:0,i:0,playing:false,done:false,queue:build()});
+  clearTimeout(st.timer);Object.assign(st,{reports:{},sel:null,tool:0,llm:0,sim:0,cost:0,i:0,playing:false,done:false});prepare();
   $("#msgs").innerHTML='<div class="empty">按下「播放」開始模擬分析流程</div>';
   $("#rtitle").textContent="尚無報告";$("#rsub").textContent="";$("#rbody").innerHTML='<p style="color:var(--dim)">點選左側已完成的角色，可切換檢視該角色的報告。</p>';
   drawProg();drawStats();ui();
@@ -569,6 +585,7 @@ function step(){
 function play(){
   if(st.done)return;
   if(st.playing){st.playing=false;clearTimeout(st.timer);ui();return}
+  if(st.i===0){prepare();drawProg();drawStats()}
   st.playing=true;ui();st.timer=setTimeout(step,200/st.speed);
 }
 $("#play").addEventListener("click",play);
@@ -596,17 +613,22 @@ window.__fast=fast;
 
 /* ---------- V3 toc ---------- */
 const secs=["r-dec","r-price","r-ind","r-sent","r-debate","r-risk","r-cfg","r-disc"];
+let tocPin=null;/* 點目錄跳到的那節；頁尾放不下時仍保持它高亮，使用者自己捲動就解除 */
 function tocUpdate(){
-  if(!$("#v3").classList.contains("on"))return;
-  let cur=secs[0];const y=140;
+  if(!$("#p-v3").classList.contains("on"))return;
+  let cur=secs[0];const y=parseFloat(getComputedStyle($("#"+secs[0])).scrollMarginTop)+60;
   secs.forEach(id=>{if($("#"+id).getBoundingClientRect().top<=y)cur=id});
   if(innerHeight+scrollY>=document.documentElement.scrollHeight-4)cur=secs[secs.length-1];
-  $$(".toc a").forEach(a=>{const on=a.getAttribute("href")==="#"+cur;a.classList.toggle("on",on);on?a.setAttribute("aria-current","true"):a.removeAttribute("aria-current")});
+  if(tocPin)cur=tocPin;
+  const toc=$(".toc");
+  $$(".toc a").forEach(a=>{const on=a.getAttribute("href")==="#"+cur;a.classList.toggle("on",on);on?a.setAttribute("aria-current","true"):a.removeAttribute("aria-current");
+    if(on&&toc.scrollWidth>toc.clientWidth+1)toc.scrollLeft=a.offsetLeft-(toc.clientWidth-a.offsetWidth)/2});
 }
 addEventListener("scroll",tocUpdate,{passive:true});
+addEventListener("resize",tocUpdate,{passive:true});
+["wheel","touchstart","keydown","pointerdown"].forEach(t=>addEventListener(t,()=>{tocPin=null},{passive:true}));
 /* toc 連結不要被當成 view hash */
-$$(".toc a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();$(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}));
-$$("#md a[href='#v3']");
+$$(".toc a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();tocPin=a.getAttribute("href").slice(1);tocUpdate();$(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}));
 $("#rbody").addEventListener("click",e=>{const a=e.target.closest("a[href='#v3']");if(a){e.preventDefault();location.hash="v3"}});
 route();
 if(location.hash==="#v2/done")fast();
