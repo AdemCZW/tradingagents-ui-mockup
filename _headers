@@ -1,0 +1,14 @@
+# Workers 靜態資源（與 Pages 相同）依此檔送出 HTTP 標頭；此檔本身不會對外提供（線上 /_headers 為 404）。
+# 防收錄三層：這裡的 X-Robots-Tag（最強，明確要求不收錄、不存快取、不抓圖）
+#            ＋ robots.txt（禮貌性要求不爬）＋ 不公開發布網址。
+# 預覽站、活動站在正式公開前都不該被搜尋引擎收錄；正式要被搜尋到時才拿掉 X-Robots-Tag。
+# Permissions-Policy 依專案需求調整：用到鏡頭才開 camera=(self)，用不到就維持全關。
+#
+# 快取（規格 §6.6）：Workers 預設每個檔案 max-age=0＋ETag（每次驗證、沒變回 304），零建置站維持預設即可。
+# 只有「檔名含雜湊或版本號、內容永不改變」的資產才設長快取，否則使用者會卡在舊版。Vite 打包的 /assets/ 可以：
+# /assets/*
+#   Cache-Control: public, max-age=31536000, immutable
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

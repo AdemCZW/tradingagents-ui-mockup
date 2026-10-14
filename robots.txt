@@ -1,0 +1,3 @@
+# 內部預覽站，不希望被搜尋引擎收錄
+User-agent: *
+Disallow: /
